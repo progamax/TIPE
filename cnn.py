@@ -4,7 +4,7 @@ from tensorflow import keras
 import os
 import time
 
-train = keras.preprocessing.image_dataset_from_directory("PlantVillage/Plantvillage",
+train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     validation_split=0.2,
     subset="training",
     seed=123,
@@ -13,7 +13,7 @@ train = keras.preprocessing.image_dataset_from_directory("PlantVillage/Plantvill
 )
 
 
-val = keras.preprocessing.image_dataset_from_directory("PlantVillage/Plantvillage",
+val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     validation_split=0.2,
     subset="validation",
     seed=123,
@@ -64,6 +64,7 @@ tensorboard_cb = keras.callbacks.TensorBoard(run_logdir)
 
 checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn2.h5", save_best_only=True)
 
+model = keras.models.load_model("cnn2.h5")
 
 # %%
 epochs = 1
