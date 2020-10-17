@@ -28,14 +28,12 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 train = train.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
 val = val.cache().prefetch(buffer_size=AUTOTUNE)
 
-normalization_layer = keras.layers.experimental.preprocessing.Rescaling(1./255)
-
-normalized_train = train.map(lambda x,y: (normalization_layer(x),y))
 
 
 model = keras.Sequential()
 #model.add(data_augmentation)
-model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu", input_shape=(256, 256,3)))
+model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(256, 256,3)))
+model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(32, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
