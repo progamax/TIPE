@@ -67,7 +67,7 @@ model = keras.models.load_model("cnn2.h5")
 # %%
 epochs = 1
 history = model.fit(
-    normalized_train,
+    train,
     validation_data=val,
     epochs=epochs,
     callbacks=[tensorboard_cb,checkpoint_cb]
