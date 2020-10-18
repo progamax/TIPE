@@ -3,6 +3,8 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 import time
+import matplotlib.pyplot as plt
+import io
 
 train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     validation_split=0.2,
@@ -53,25 +55,72 @@ model.compile(optimizer="adam",
     metrics=["accuracy"])
 #model.summary()
 
+modelImageVisualization = keras.Model(inputs=model.inputs, outputs=model.layers[3].output)
+
 root_logdir = os.path.join(os.curdir, "my_logs")
 def get_run_logdir():
     run_id = time.strftime("run_%Y_%m_%d-%H_%M_%S")
     return os.path.join(root_logdir, run_id)
+
+
 run_logdir = get_run_logdir()
 tensorboard_cb = keras.callbacks.TensorBoard(run_logdir)
 
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn2.h5", save_best_only=True)
+file_writer = tf.summary.create_file_writer(run_logdir + '/cm')
 
-model = keras.models.load_model("cnn2.h5")
+def plot_to_image(figure):
+  """Converts the matplotlib plot specified by 'figure' to a PNG image and
+  returns it. The supplied figure is closed and inaccessible after this call."""
+  # Save the plot to a PNG in memory.
+  buf = io.BytesIO()
+  plt.savefig(buf, format='png')
+  # Closing the figure prevents it from being displayed directly inside
+  # the notebook.
+  plt.close(figure)
+  buf.seek(0)
+  # Convert PNG buffer to TF image
+  image = tf.image.decode_png(buf.getvalue(), channels=4)
+  # Add the batch dimension
+  image = tf.expand_dims(image, 0)
+  return image
+
+
+def image_callback(epoch, logs):
+    image_batch, _ = next(iter(val))
+    first_image = image_batch[0:1]
+    result = modelImageVisualization.predict(first_image)
+    #result_tensor = tf.convert_to_tensor(result)
+    #result_tensor = tf.expand_dims(result_tensor, axis=3)
+
+    with file_writer.as_default():
+        figure = plt.figure(figsize=(30,10))
+
+        for i in range(32):
+            plt.subplot(4,8,i+1)
+            plt.imshow(result[0,:,:,i])
+        
+        #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
+        tf.summary.image("Second Convolution Output", plot_to_image(figure), step=epoch)
+
+image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
+
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn4.h5", save_best_only=True)
+
+#model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 1
+epochs = 2
 history = model.fit(
     train,
     validation_data=val,
     epochs=epochs,
-    callbacks=[tensorboard_cb,checkpoint_cb]
+    callbacks=[tensorboard_cb,checkpoint_cb,image_callback]
 )
+
+# %%
+
+
+
 # %%
 # PARTIE VISUALISATION
 modelImageVisualization = keras.Model(inputs=model.inputs, outputs=model.layers[2].output)
