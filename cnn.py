@@ -55,7 +55,9 @@ model.compile(optimizer="adam",
     metrics=["accuracy"])
 #model.summary()
 
-modelImageVisualization = keras.Model(inputs=model.inputs, outputs=model.layers[3].output)
+modelImageVisualization1= keras.Model(inputs=model.inputs, outputs=model.layers[1].output)
+modelImageVisualization2 = keras.Model(inputs=model.inputs, outputs=model.layers[3].output)
+modelImageVisualization3 = keras.Model(inputs=model.inputs, outputs=model.layers[5].output)
 
 root_logdir = os.path.join(os.curdir, "my_logs")
 def get_run_logdir():
@@ -88,28 +90,49 @@ def plot_to_image(figure):
 def image_callback(epoch, logs):
     image_batch, _ = next(iter(val))
     first_image = image_batch[0:1]
-    result = modelImageVisualization.predict(first_image)
+    result1 = modelImageVisualization1.predict(first_image)
+    result2 = modelImageVisualization2.predict(first_image)
+    result3 = modelImageVisualization3.predict(first_image)
     #result_tensor = tf.convert_to_tensor(result)
     #result_tensor = tf.expand_dims(result_tensor, axis=3)
 
     with file_writer.as_default():
-        figure = plt.figure(figsize=(30,10))
+        figure = plt.figure(figsize=(20,10))
 
         for i in range(32):
             plt.subplot(4,8,i+1)
-            plt.imshow(result[0,:,:,i])
+            plt.imshow(result2[0,:,:,i])
         
         #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
-        tf.summary.image("Second Convolution Output", plot_to_image(figure), step=epoch)
+        tf.summary.image("Convolution Output - Layer 2", plot_to_image(figure), step=epoch)
+
+    with file_writer.as_default():
+        figure = plt.figure(figsize=(20,10))
+
+        for i in range(16):
+            plt.subplot(4,4,i+1)
+            plt.imshow(result1[0,:,:,i])
+        
+        #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
+        tf.summary.image("Convolution Output - Layer 1", plot_to_image(figure), step=epoch)
+    with file_writer.as_default():
+        figure = plt.figure(figsize=(20,13))
+
+        for i in range(64):
+            plt.subplot(7,10,i+1)
+            plt.imshow(result3[0,:,:,i])
+        
+        #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
+        tf.summary.image("Convolution Output - Layer 3", plot_to_image(figure), step=epoch)
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn5.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn6.h5", save_best_only=True)
 
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 30
+epochs = 1
 history = model.fit(
     train,
     validation_data=val,
