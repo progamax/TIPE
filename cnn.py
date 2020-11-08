@@ -104,12 +104,12 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn4.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn5.h5", save_best_only=True)
 
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 2
+epochs = 30
 history = model.fit(
     train,
     validation_data=val,
