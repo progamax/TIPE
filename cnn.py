@@ -30,11 +30,15 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 train = train.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
 val = val.cache().prefetch(buffer_size=AUTOTUNE)
 
+data_augmentation = tf.keras.Sequential([
+  keras.layers.experimental.preprocessing.RandomFlip("horizontal_and_vertical"),
+  keras.layers.experimental.preprocessing.RandomRotation(0.2),
+])
 
 
 model = keras.Sequential()
-#model.add(data_augmentation)
 model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(256, 256,3)))
+model.add(data_augmentation)
 model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(32, 3, padding="same", activation="relu"))
@@ -55,9 +59,9 @@ model.compile(optimizer="adam",
     metrics=["accuracy"])
 #model.summary()
 
-modelImageVisualization1= keras.Model(inputs=model.inputs, outputs=model.layers[1].output)
-modelImageVisualization2 = keras.Model(inputs=model.inputs, outputs=model.layers[3].output)
-modelImageVisualization3 = keras.Model(inputs=model.inputs, outputs=model.layers[5].output)
+modelImageVisualization1= keras.Model(inputs=model.inputs, outputs=model.layers[3].output)
+modelImageVisualization2 = keras.Model(inputs=model.inputs, outputs=model.layers[5].output)
+modelImageVisualization3 = keras.Model(inputs=model.inputs, outputs=model.layers[7].output)
 
 root_logdir = os.path.join(os.curdir, "my_logs")
 def get_run_logdir():
@@ -127,12 +131,12 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn6.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn6-dataAug.h5", save_best_only=True)
 
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 1
+epochs = 6
 history = model.fit(
     train,
     validation_data=val,
