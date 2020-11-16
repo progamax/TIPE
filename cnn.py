@@ -54,7 +54,7 @@ model.add(keras.layers.Dense(15))
 print(class_names)
 print(len(class_names))
 # %%
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.01),
+model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0005),
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"])
 #model.summary()
@@ -131,12 +131,12 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn7-lr1.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn7-lr2.h5", save_best_only=True)
 
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 30
+epochs = 70
 history = model.fit(
     train,
     validation_data=val,
