@@ -6,7 +6,7 @@ import time
 import matplotlib.pyplot as plt
 import io
 
-train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
+train = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled",
     validation_split=0.2,
     subset="training",
     seed=123,
@@ -15,7 +15,7 @@ train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
 )
 
 
-val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
+val = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled",
     validation_split=0.2,
     subset="validation",
     seed=123,
@@ -48,13 +48,13 @@ model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Flatten())
 model.add(keras.layers.Dense(128, activation="relu"))
-model.add(keras.layers.Dense(15))
+model.add(keras.layers.Dense(2))
 
 # %%
 print(class_names)
 print(len(class_names))
 # %%
-model.compile(optimizer=keras.optimizers.Adam(learning_rate=0.0005),
+model.compile(optimizer=keras.optimizers.Adam(),
     loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"])
 #model.summary()
@@ -130,13 +130,12 @@ def image_callback(epoch, logs):
         tf.summary.image("Convolution Output - Layer 3", plot_to_image(figure), step=epoch)
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
-
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn7-lr2.h5", save_best_only=True)
-
+#%%
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn8-label.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 70
+epochs = 30
 history = model.fit(
     train,
     validation_data=val,
