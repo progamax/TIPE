@@ -39,15 +39,15 @@ data_augmentation = tf.keras.Sequential([
 model = keras.Sequential()
 model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(256, 256,3)))
 model.add(data_augmentation)
-model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu"))
+model.add(keras.layers.Conv2D(16//2, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
-model.add(keras.layers.Conv2D(32, 3, padding="same", activation="relu"))
+model.add(keras.layers.Conv2D(32//2, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
-model.add(keras.layers.Conv2D(64, 3, padding="same", activation="relu"))
+model.add(keras.layers.Conv2D(64//2, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Flatten())
-model.add(keras.layers.Dense(128, activation="relu"))
+model.add(keras.layers.Dense(128/2, activation="relu"))
 model.add(keras.layers.Dense(2))
 
 # %%
@@ -103,7 +103,7 @@ def image_callback(epoch, logs):
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,10))
 
-        for i in range(32):
+        for i in range(32//2):
             plt.subplot(4,8,i+1)
             plt.imshow(result2[0,:,:,i])
         
@@ -113,7 +113,7 @@ def image_callback(epoch, logs):
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,10))
 
-        for i in range(16):
+        for i in range(16//2):
             plt.subplot(4,4,i+1)
             plt.imshow(result1[0,:,:,i])
         
@@ -122,7 +122,7 @@ def image_callback(epoch, logs):
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,13))
 
-        for i in range(64):
+        for i in range(64//2):
             plt.subplot(7,10,i+1)
             plt.imshow(result3[0,:,:,i])
         
@@ -131,13 +131,14 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn8-label.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn9-label-2.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 30
+epochs = 60
 history = model.fit(
     train,
+    initial_epoch=31,
     validation_data=val,
     epochs=epochs,
     callbacks=[tensorboard_cb,checkpoint_cb,image_callback]
