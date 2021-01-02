@@ -45,7 +45,7 @@ model.add(keras.layers.Conv2D(32//2, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(64//2, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
-model.add(keras.layers.Dropout(0.2))
+#model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Flatten())
 model.add(keras.layers.Dense(128/2, activation="relu"))
 model.add(keras.layers.Dense(2))
@@ -131,14 +131,14 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn9-label-2.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn9-label-3.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
 epochs = 60
 history = model.fit(
     train,
-    initial_epoch=31,
+    initial_epoch=30,
     validation_data=val,
     epochs=epochs,
     callbacks=[tensorboard_cb,checkpoint_cb,image_callback]
