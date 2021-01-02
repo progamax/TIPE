@@ -6,11 +6,13 @@ import time
 import matplotlib.pyplot as plt
 import io
 
+img_size = 180
+
 train = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled",
     validation_split=0.2,
     subset="training",
     seed=123,
-    image_size=(256,256),
+    image_size=(img_size,img_size),
     batch_size=32
 )
 
@@ -19,7 +21,7 @@ val = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled"
     validation_split=0.2,
     subset="validation",
     seed=123,
-    image_size=(256,256),
+    image_size=(img_size,img_size),
     batch_size=32
 )
 
@@ -37,14 +39,14 @@ data_augmentation = tf.keras.Sequential([
 
 
 model = keras.Sequential()
-model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(256, 256,3)))
+model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(img_size, img_size,3)))
 model.add(data_augmentation)
 model.add(keras.layers.Conv2D(16//2, 3, padding="same", activation="relu"))
-model.add(keras.layers.AveragePooling2D())
+model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(32//2, 3, padding="same", activation="relu"))
-model.add(keras.layers.AveragePooling2D())
+model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(64//2, 3, padding="same", activation="relu"))
-model.add(keras.layers.AveragePooling2D())
+model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Flatten())
 model.add(keras.layers.Dense(128/2, activation="relu"))
@@ -131,7 +133,7 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn9-label-4.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn9-label-imgsize.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
@@ -151,7 +153,7 @@ history = model.fit(
 # PARTIE VISUALISATION
 modelImageVisualization = keras.Model(inputs=model.inputs, outputs=model.layers[2].output)
 # %%
-""" feature_maps = modelImageVisualization.predict(val.take(1))
+feature_maps = modelImageVisualization.predict(val.take(1))
 # %%
 import matplotlib.pyplot as plt
 for i in range(4):
@@ -168,5 +170,5 @@ for i in range(6):
         ax = plt.subplot(6, 3, (j+1) + i * 3)
         plt.imshow(filters[:,:,j,i], cmap="gray")
 
-plt.show() """
+plt.show()
 # %%
