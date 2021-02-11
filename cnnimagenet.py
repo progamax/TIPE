@@ -8,9 +8,9 @@ import numpy as np
 import io
 import tensorflow_hub as hub
 classifier_model ="https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4"
-
-
+#classifier_model = "https://tfhub.dev/google/aiy/vision/classifier/plants_V1/1"
 img_size = 224
+
 train = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled",
     validation_split=0.2,
     subset="training",
@@ -39,14 +39,49 @@ val = val.cache().prefetch(buffer_size=AUTOTUNE)
 IMAGE_SHAPE = (224, 224)
 
 classifier = tf.keras.Sequential([
-    hub.KerasLayer(classifier_model, input_shape=IMAGE_SHAPE+(3,))
+    #hub.KerasLayer(classifier_model, input_shape=IMAGE_SHAPE+(3,))
+    keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(img_size, img_size,3)),
+    hub.KerasLayer(classifier_model),
+    keras.layers.Dropout(0.2),
+    keras.layers.Dense(15)
 ])
+
+classifier.compile(optimizer=keras.optimizers.Adam(),
+    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics=["accuracy"])
+
+
+#%%
+root_logdir = os.path.join(os.curdir, "my_logs")
+def get_run_logdir():
+    run_id = time.strftime("run_%Y_%m_%d-%H_%M_%S")
+    return os.path.join(root_logdir, run_id)
+
+
+run_logdir = get_run_logdir()
+tensorboard_cb = keras.callbacks.TensorBoard(run_logdir)
+
+file_writer = tf.summary.create_file_writer(run_logdir + '/cm')
+
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn-imagenet2.h5", save_best_only=True)
+#%%
+history = classifier.fit(
+    train,
+    validation_data=val,
+    epochs=20,
+    callbacks=[tensorboard_cb,checkpoint_cb]
+)
+#%%
+
+
+
+
 image, result = next(train.take(1).as_numpy_iterator())
 result = classifier.predict(image)
 
+#labels = np.array(open("plantsLabel.txt").read().splitlines())
 labels_path = tf.keras.utils.get_file('ImageNetLabels.txt','https://storage.googleapis.com/download.tensorflow.org/data/ImageNetLabels.txt')
 imagenet_labels = np.array(open(labels_path).read().splitlines())
-
 
 # %%
 classe = []
@@ -56,21 +91,10 @@ for i in range(len(result)):
 # %%
 import PIL.Image as Image
 
-grace_hopper = tf.keras.utils.get_file('image7.jpg','https://i.ytimg.com/vi/qFpAZItPWUk/maxresdefault.jpg')
-grace_hopper = Image.open(grace_hopper).resize(IMAGE_SHAPE)
-grace_hopper = np.array(grace_hopper)/255.0
-result = classifier.predict(grace_hopper[np.newaxis, ...])
-print(result)
-predicted_class = np.argmax(result[0], axis=-1)
-plt.imshow(grace_hopper)
-plt.axis('off')
-predicted_class_name = imagenet_labels[predicted_class]
-_ = plt.title("Prediction: " + predicted_class_name.title())
-
 # %%
 plt.imshow(image[5,:,:,:]/255)
 # %%
 
-plt.bar(imagenet_labels, result[0])
+plt.bar(labels, result[0])
 plt.show()
 # %%
