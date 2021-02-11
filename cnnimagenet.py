@@ -61,7 +61,6 @@ def get_run_logdir():
 run_logdir = get_run_logdir()
 tensorboard_cb = keras.callbacks.TensorBoard(run_logdir)
 
-file_writer = tf.summary.create_file_writer(run_logdir + '/cm')
 
 checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn-imagenet2.h5", save_best_only=True)
 #%%
