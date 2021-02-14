@@ -16,7 +16,7 @@ train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     subset="training",
     seed=123,
     image_size=(img_size,img_size),
-    batch_size=16
+    batch_size=64
 )
 
 
@@ -25,7 +25,7 @@ val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     subset="validation",
     seed=123,
     image_size=(img_size,img_size),
-    batch_size=16
+    batch_size=64
 )
 
 class_names = train.class_names
@@ -137,7 +137,7 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn10-batchsize-16.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn11-batchsize-64.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
