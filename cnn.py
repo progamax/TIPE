@@ -7,26 +7,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 import io
 import tensorflow_hub as hub
-classifier_model ="https://tfhub.dev/google/tf2-preview/mobilenet_v2/classification/4"
 
 
 img_size = 256
 
-train = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled",
+train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     validation_split=0.2,
     subset="training",
     seed=123,
     image_size=(img_size,img_size),
-    batch_size=32
+    batch_size=16
 )
 
 
-val = keras.preprocessing.image_dataset_from_directory("Plantvillage_Relabelled",
+val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     validation_split=0.2,
     subset="validation",
     seed=123,
     image_size=(img_size,img_size),
-    batch_size=32
+    batch_size=16
 )
 
 class_names = train.class_names
@@ -45,16 +44,16 @@ data_augmentation = tf.keras.Sequential([
 model = keras.Sequential()
 model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(img_size, img_size,3)))
 model.add(data_augmentation)
-model.add(keras.layers.Conv2D(16//2, 3, padding="same", activation="relu"))
+model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
-model.add(keras.layers.Conv2D(32//2, 3, padding="same", activation="relu"))
+model.add(keras.layers.Conv2D(32, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
-model.add(keras.layers.Conv2D(64//2, 3, padding="same", activation="relu"))
+model.add(keras.layers.Conv2D(64, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Flatten())
-model.add(keras.layers.Dense(128/2, activation="relu"))
-model.add(keras.layers.Dense(2))
+model.add(keras.layers.Dense(128, activation="relu"))
+model.add(keras.layers.Dense(15))
 
 
 # %%
@@ -110,7 +109,7 @@ def image_callback(epoch, logs):
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,10))
 
-        for i in range(32//2):
+        for i in range(32):
             plt.subplot(4,8,i+1)
             plt.imshow(result2[0,:,:,i])
         
@@ -120,7 +119,7 @@ def image_callback(epoch, logs):
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,10))
 
-        for i in range(16//2):
+        for i in range(16):
             plt.subplot(4,4,i+1)
             plt.imshow(result1[0,:,:,i])
         
@@ -129,7 +128,7 @@ def image_callback(epoch, logs):
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,13))
 
-        for i in range(64//2):
+        for i in range(64):
             plt.subplot(7,10,i+1)
             plt.imshow(result3[0,:,:,i])
         
@@ -138,11 +137,11 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn9-label-imgsizenull.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn10-batchsize-16.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
-epochs = 60
+epochs = 30
 history = model.fit(
     train,
     validation_data=val,
