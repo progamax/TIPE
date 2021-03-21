@@ -137,7 +137,7 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn11-batchsize-64.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn12-firstnetwork-retry.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
