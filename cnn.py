@@ -43,7 +43,7 @@ data_augmentation = tf.keras.Sequential([
 
 model = keras.Sequential()
 model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(img_size, img_size,3)))
-model.add(data_augmentation)
+#model.add(data_augmentation)
 model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(32, 3, padding="same", activation="relu"))
@@ -137,7 +137,7 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn12-firstnetwork-retry.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn12-firstnetwork-retry2.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
