@@ -27,7 +27,6 @@ val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     batch_size=32
 )
 
-class_names = train.class_names
 
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
