@@ -15,7 +15,7 @@ train = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     subset="training",
     seed=123,
     image_size=(img_size,img_size),
-    batch_size=64
+    batch_size=32
 )
 
 
@@ -24,7 +24,7 @@ val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     subset="validation",
     seed=123,
     image_size=(img_size,img_size),
-    batch_size=64
+    batch_size=32
 )
 
 class_names = train.class_names
@@ -42,7 +42,7 @@ data_augmentation = tf.keras.Sequential([
 
 model = keras.Sequential()
 model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(img_size, img_size,3)))
-#model.add(data_augmentation)
+model.add(data_augmentation)
 model.add(keras.layers.Conv2D(16, 3, padding="same", activation="relu"))
 model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Conv2D(32, 3, padding="same", activation="relu"))
@@ -98,8 +98,6 @@ def image_callback(epoch, logs):
     result1 = modelImageVisualization1.predict(first_image)
     result2 = modelImageVisualization2.predict(first_image)
     result3 = modelImageVisualization3.predict(first_image)
-    #result_tensor = tf.convert_to_tensor(result)
-    #result_tensor = tf.expand_dims(result_tensor, axis=3)
 
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,10))
@@ -108,7 +106,6 @@ def image_callback(epoch, logs):
             plt.subplot(4,8,i+1)
             plt.imshow(result2[0,:,:,i])
         
-        #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
         tf.summary.image("Convolution Output - Layer 2", plot_to_image(figure), step=epoch)
 
     with file_writer.as_default():
@@ -118,7 +115,6 @@ def image_callback(epoch, logs):
             plt.subplot(4,4,i+1)
             plt.imshow(result1[0,:,:,i])
         
-        #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
         tf.summary.image("Convolution Output - Layer 1", plot_to_image(figure), step=epoch)
     with file_writer.as_default():
         figure = plt.figure(figsize=(20,13))
@@ -127,7 +123,6 @@ def image_callback(epoch, logs):
             plt.subplot(7,10,i+1)
             plt.imshow(result3[0,:,:,i])
         
-        #tf.summary.image("Second Convolution Output - Card " + str(i+1), result_tensor[:,:,:,i:i+1], step=epoch)
         tf.summary.image("Convolution Output - Layer 3", plot_to_image(figure), step=epoch)
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
