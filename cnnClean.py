@@ -27,7 +27,6 @@ val = keras.preprocessing.image_dataset_from_directory("Plantvillage",
     batch_size=32
 )
 
-
 AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 train = train.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
@@ -37,7 +36,6 @@ data_augmentation = tf.keras.Sequential([
   keras.layers.experimental.preprocessing.RandomFlip("horizontal_and_vertical"),
   keras.layers.experimental.preprocessing.RandomRotation(0.2),
 ])
-
 
 model = keras.Sequential()
 model.add(keras.layers.experimental.preprocessing.Rescaling(1./255, input_shape=(img_size, img_size,3)))
@@ -51,11 +49,11 @@ model.add(keras.layers.MaxPooling2D())
 model.add(keras.layers.Dropout(0.2))
 model.add(keras.layers.Flatten())
 model.add(keras.layers.Dense(128, activation="relu"))
-model.add(keras.layers.Dense(15))
+model.add(keras.layers.Dense(15, activation="softmax"))
 
 # %%
 model.compile(optimizer=keras.optimizers.Adam(),
-    loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    loss=keras.losses.SparseCategoricalCrossentropy(),
     metrics=["accuracy"])
 
 
@@ -126,7 +124,7 @@ def image_callback(epoch, logs):
 
 image_callback = keras.callbacks.LambdaCallback(on_epoch_end=image_callback)
 #%%
-checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn12-firstnetwork-retry2.h5", save_best_only=True)
+checkpoint_cb = keras.callbacks.ModelCheckpoint("cnn12-firstnetwork-retry4.h5", save_best_only=True)
 #model = keras.models.load_model("cnn2.h5")
 
 # %%
